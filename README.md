@@ -11,6 +11,7 @@ disparate at the moment)
 * Play multiple consecutive files in HTML5. Is there a gap?
 * To make a video from audio:
   - ffmpeg -i fn.ogg -filter_complex "[0:a]showwaves=s=1280x720:mode=line:rate=25,format=yuv420p[v]" -map "[v]" -map 0:a fn.mkv
+  - TODO: Figure out if I can add VTT to audio-only (maybe in a <video> tag still)
 
 
 The MIT License (MIT)

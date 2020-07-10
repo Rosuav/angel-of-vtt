@@ -2,9 +2,11 @@
 
 object midilib = (object)"../shed/patchpatch.pike";
 int verbose = 0;
+float offset = 0.0;
 
 string hms(float tm)
 {
+	tm += offset;
 	int sec = (int)tm, ms = (int)(tm * 1000);
 	int min = sec / 60, hr = sec / 3600;
 	return sprintf("%02d:%02d:%02d.%03d", hr, min % 60, sec % 60, ms % 1000);
@@ -13,6 +15,7 @@ string hms(float tm)
 void build_vtt(string fn)
 {
 	if (fn == "--verbose" || fn == "-v") {verbose = 1; return;}
+	if (sscanf(fn, "-o%f", float ofs)) {offset = ofs; return;} //Use "-o-.25" to pull the lyrics a quarter second earlier
 	array(array(string|array(array(int|string)))) chunks;
 	if (catch {chunks = midilib->parsesmf(Stdio.read_file(fn));}) return;
 	//Currently renders only one track of lyrics. If it becomes an issue,
@@ -51,6 +54,9 @@ void build_vtt(string fn)
 		if (line != "") lines += ({({line, linestart, lastlyric})});
 		if (!sizeof(lines)) continue;
 		int prevend = 0;
+		//TODO: Figure out what's wrong with the playback rate
+		//For some reason, the lyrics are being played too fast - sometimes a LOT too fast.
+		//They also seem to start at the wrong time but I'm not sure why.
 		foreach (lines; int i; [string line, int start, int end])
 		{
 			int nextstart = i < sizeof(lines) - 1 ? lines[i + 1][1] : pos;
@@ -64,7 +70,7 @@ void build_vtt(string fn)
 				line,
 			);
 			while (sscanf(line, "%s<%*s>%s", string q, string w) && w) line = q + w;
-			werror("%1.3f %5d %5d %1.3f %s\n", preempt, start, end, linger, line);
+			if (verbose) werror("%1.3f %5d %5d %1.3f %s\n", preempt, start, end, linger, line);
 			prevend = end;
 		}
 	}
