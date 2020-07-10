@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Karaoke test</title>
+<style>
+video::cue(:past) {
+	color: green;
+}
+video::cue(:future) {
+	color: red;
+}
+
+</style>
+</head>
+<body>
+<video controls preload src="tbj01a.mkv">
+	<track kind="subtitles" default src="tbj01a.vtt">
+</video>
+<script>
+const vid = document.querySelector("video");
+vid.volume = 0.035;
+</script>
+</body>
+</html>
