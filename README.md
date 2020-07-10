@@ -4,7 +4,7 @@ Tinkering and toying with the VTT format
 (yeah, that's not a very coherent project goal, but the pieces are kinda
 disparate at the moment)
 
-* Create a VTT file from a MIDI file
+* Create a VTT file from a MIDI karaoke file
   - can I timidity the audio and words at once?
 * Play a VTT in VLC
   - does karaoke mode (with intermediate timestamps) work?
