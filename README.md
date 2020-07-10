@@ -6,8 +6,8 @@ disparate at the moment)
 
 * Create a VTT file from a MIDI karaoke file
   - can I timidity the audio and words at once?
-* Play a VTT in VLC
-  - does karaoke mode (with intermediate timestamps) work?
+  - Every new line/para, create a new block in the VTT
+  - Every new event, create "<00:00:04.400><c>in </c>" w/ timestamp and text
 * Play multiple consecutive files in HTML5. Is there a gap?
 
 
