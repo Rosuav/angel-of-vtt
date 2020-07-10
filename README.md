@@ -9,6 +9,8 @@ disparate at the moment)
   - Every new line/para, create a new block in the VTT
   - Every new event, create "<00:00:04.400><c>in </c>" w/ timestamp and text
 * Play multiple consecutive files in HTML5. Is there a gap?
+* To make a video from audio:
+  - ffmpeg -i fn.ogg -filter_complex "[0:a]showwaves=s=1280x720:mode=line:rate=25,format=yuv420p[v]" -map "[v]" -map 0:a fn.mkv
 
 
 The MIT License (MIT)

@@ -10,7 +10,7 @@ string hms(float tm)
 	return sprintf("%02d:%02d:%02d.%03d", hr, min % 60, sec % 60, ms % 1000);
 }
 
-void audit(string fn)
+void build_vtt(string fn)
 {
 	if (fn == "--verbose" || fn == "-v") {verbose = 1; return;}
 	array(array(string|array(array(int|string)))) chunks;
@@ -38,7 +38,6 @@ void audit(string fn)
 					write("%s\n\n", replace(cue, "\xFFFD", hms(pos * time_division)));
 					cue = 0;
 				}
-				//TBJ 00:00:24ish "Hark" == 9216
 				string words = data[3];
 				new_para = has_value(words, '\r') || has_value(words, '\n');
 				words = words - "\r" - "\n";
@@ -57,5 +56,5 @@ void audit(string fn)
 
 int main(int argc, array(string) argv)
 {
-	foreach (argv[1..], string arg) audit(arg);
+	foreach (argv[1..], string arg) build_vtt(arg);
 }
