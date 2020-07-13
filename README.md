@@ -5,13 +5,17 @@ Tinkering and toying with the VTT format
 disparate at the moment)
 
 * Create a VTT file from a MIDI karaoke file
-  - can I timidity the audio and words at once?
-  - Every new line/para, create a new block in the VTT
-  - Every new event, create "<00:00:04.400><c>in </c>" w/ timestamp and text
-* Play multiple consecutive files in HTML5. Is there a gap?
-* To make a video from audio:
-  - ffmpeg -i fn.ogg -filter_complex "[0:a]showwaves=s=1280x720:mode=line:rate=25,format=yuv420p[v]" -map "[v]" -map 0:a fn.mkv
-  - TODO: Figure out if I can add VTT to audio-only (maybe in a <video> tag still)
+* TODO: Play multiple consecutive files in HTML5. Is there a gap?
+* If not, consider an amalgamated file. Generate a title card for each input
+  file, "title-001.png" etc. Then build the images into a movie thus:
+  - ffmpeg -i title-%3d.png -vf "zoompan=d=123*eq(in,0)+234*eq(in,1)" output.mkv
+  - TODO: Figure out how best to combine this with the audio in one step.
+  - The zoompan=d= expression consists of "+".join("%d*eq(in,%d)" % (dur, idx))
+    for every duration (in frames) that we want to use. This isn't exactly the
+    tidiest way to do an array lookup, but I don't think FFMPEG has any better.
+  - The default is 25fps. May need to change that.
+* It's not possible to play audio with subtitles (even in a <video> tag), so
+  we generate a visualization using ffmpeg.
 
 
 The MIT License (MIT)
