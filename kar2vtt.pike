@@ -18,8 +18,6 @@ void build_vtt(string fn)
 	if (sscanf(fn, "-o%f", float ofs)) {offset = ofs; return;} //Use "-o-.25" to pull the lyrics a quarter second earlier
 	array(array(string|array(array(int|string)))) chunks;
 	if (catch {chunks = midilib->parsesmf(Stdio.read_file(fn));}) return;
-	//Currently renders only one track of lyrics. If it becomes an issue,
-	//add an optional step here to flatten to SMF0.
 	werror("Chunk 0/%d: %O\n", sizeof(chunks), chunks[0]);
 	sscanf(chunks[0][1],"%2c%*2c%2c",int type,int timediv); //timediv == ticks per quarter note
 	//if (time_division&0x8000) //it's SMPTE timing?
@@ -27,12 +25,42 @@ void build_vtt(string fn)
 	float time_division=tempo*.000001/timediv;
 
 	write("WEBVTT\n\n");
-	foreach (chunks; int i; [string id, array chunk]) if (id == "MTrk")
+	//Flatten the MTrk chunks into a single stream of MIDI events
+	int active = 0;
+	foreach (chunks; int i; [string id, array chunk])
+		if (id == "MTrk") {chunks[i] = ({chunk, 0}); ++active;} else chunks[i] = ({0, -1});
+	array(array(int|string)) events = ({ });
+	while (active)
+	{
+		//Pick the earliest event from the currently active chunks
+		int advance = 1<<60; //pretend that that's infinity plsthx
+		int sc = 0;
+		foreach (chunks; int i; [array chunk, int pos]) if (chunk)
+		{
+			int delay = chunk[pos][0];
+			if (delay > advance) continue;
+			advance = delay; sc = i;
+			if (!delay) break; //There's an immediate event. Don't bother looking elsewhere.
+		}
+		[array chunk, int pos] = chunks[sc];
+		//Consume this event and put it onto the single stream
+		events += ({chunk[pos]});
+		if (pos + 1 >= sizeof(chunk)) {chunks[sc][0] = 0; --active;} //Past the end? No longer active.
+		else chunks[sc][1] = pos + 1;
+		//Shorten each other event's delay by the delay on this one
+		if (!advance) continue; //Fast path for immediate events
+		foreach (chunks; int i; [array chunk, int pos]) if (chunk && i != sc)
+		{
+			//assert chunk[pos][0] >= advance
+			chunk[pos][0] -= advance;
+		}
+	}
+	//todo unindent
 	{
 		float pos = 0, linestart = 0, lastlyric = 0;
 		array lines = ({ });
 		string line = "";
-		foreach (chunk; int ev; array data)
+		foreach (events; int ev; array data)
 		{
 			pos += data[0] * time_division;
 			//data == ({delay, command[, args...]})
@@ -61,7 +89,7 @@ void build_vtt(string fn)
 		}
 		if (line != "") lines += ({({line, linestart, lastlyric})});
 		werror("End pos: %s\n", hms(pos));
-		if (!sizeof(lines)) continue;
+		//if (!sizeof(lines)) continue;
 		//Combine lines into pairs. TODO: Don't combine across a large gap.
 		array pairs = ({ });
 		foreach (lines / 2, [array line1, array line2])

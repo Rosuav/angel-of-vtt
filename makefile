@@ -5,7 +5,7 @@
 	timidity $< -Ow -o $@
 
 %.vtt: %.kar
-	pike kar2vtt.pike -v $< >$@
+	pike kar2vtt.pike -v -o-.25 $< >$@
 
 %.html: %.mkv %.vtt template.html
 	sed <template.html 's/{{FN}}/'$(basename $(<F))'/' >$@
