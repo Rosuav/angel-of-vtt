@@ -57,12 +57,15 @@ void build_vtt(string fn)
 	float pos = 0, linestart = 0, lastlyric = 0;
 	array lines = ({ });
 	string line = "";
+	int no_lyrics = 1;
 	foreach (events; int ev; array data)
 	{
 		pos += data[0] * time_division;
 		//data == ({delay, command[, args...]})
 		if (data[1] != 255) continue; //Actual notes and stuff don't matter :)
-		if (data[2] == 5 || (data[2] == 1 && pos > 0.0)) //Type 1 (Text) can only be lyrics if not at the start of the track
+		//Type 1 (Text) can only be lyrics if not at the start of the track.
+		if (data[2] == 5) no_lyrics = 0; //And only if we've never had any type 5 lyrics.
+		if (data[2] == 5 || (data[2] == 1 && pos > 0.0 && no_lyrics))
 		{
 			string words = data[3];
 			//write("%.3f %s\n", pos, replace(words, (["\r": "\\r", "\n": "\\n"])));
