@@ -53,6 +53,11 @@ void build_vtt(string fn)
 		}
 		if (line != "") lines += ({({line, linestart, lastlyric})});
 		if (!sizeof(lines)) continue;
+		//Combine lines into pairs. TODO: Don't combine across a large gap.
+		array pairs = ({ });
+		foreach (lines / 2, [array line1, array line2])
+			pairs += ({({line1[0] + "\n" + line2[0], line1[1], line2[2]})});
+		lines = pairs + lines % 2;
 		int prevend = 0;
 		//TODO: Figure out what's wrong with the playback rate
 		//For some reason, the lyrics are being played too fast - sometimes a LOT too fast.
