@@ -103,8 +103,8 @@ void build_vtt(string fn)
 		float nextnextstart = i < sizeof(lines) - 2 ? lines[i + 2][1] : pos;
 		float gapbefore = start - prevprevend;
 		float gapafter = nextnextstart - end;
-		float preempt = min(gapbefore / 2, 2.5);
-		float linger = min(gapafter / 2, 5.0);
+		float preempt = min(gapbefore / 2, 2.0);
+		float linger = min(gapafter / 2, 2.5);
 		write("%s --> %s\n%s\n\n",
 			hms(start - preempt), //Start a bit before the first lyric syllable
 			hms(end + linger), //Linger a bit after the last lyric syllable
