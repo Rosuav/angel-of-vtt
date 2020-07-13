@@ -2,3 +2,6 @@
 *.ogg
 *.wav
 *.kar
+*.html
+!template.html
+*.vtt
