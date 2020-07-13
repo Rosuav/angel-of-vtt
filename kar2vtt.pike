@@ -58,17 +58,17 @@ void build_vtt(string fn)
 		foreach (lines / 2, [array line1, array line2])
 			pairs += ({({line1[0] + "\n" + line2[0], line1[1], line2[2]})});
 		lines = pairs + lines % 2;
-		int prevend = 0;
+		int prevend = 0, prevprevend = 0;
 		//TODO: Figure out what's wrong with the playback rate
 		//For some reason, the lyrics are being played too fast - sometimes a LOT too fast.
 		//They also seem to start at the wrong time but I'm not sure why.
 		foreach (lines; int i; [string line, int start, int end])
 		{
-			int nextstart = i < sizeof(lines) - 1 ? lines[i + 1][1] : pos;
-			int gapbefore = start - prevend;
-			int gapafter = nextstart - end;
-			float preempt = min(gapbefore / 2 * time_division - 0.0625, 0.5);
-			float linger = min(gapafter / 2 * time_division - 0.0625, 1.5);
+			int nextnextstart = i < sizeof(lines) - 2 ? lines[i + 2][1] : pos;
+			int gapbefore = start - prevprevend;
+			int gapafter = nextnextstart - end;
+			float preempt = min(gapbefore / 2 * time_division - 0.0625, 2.5);
+			float linger = min(gapafter / 2 * time_division - 0.0625, 5.0);
 			write("%s --> %s\n%s\n\n",
 				hms(start * time_division - preempt), //Start a bit before the first lyric syllable
 				hms(end * time_division + linger), //Linger a bit after the last lyric syllable
@@ -76,7 +76,7 @@ void build_vtt(string fn)
 			);
 			while (sscanf(line, "%s<%*s>%s", string q, string w) && w) line = q + w;
 			if (verbose) werror("%1.3f %5d %5d %1.3f %s\n", preempt, start, end, linger, line);
-			prevend = end;
+			prevprevend = prevend; prevend = end;
 		}
 	}
 }
